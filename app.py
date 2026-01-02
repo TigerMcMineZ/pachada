@@ -167,6 +167,28 @@ st.markdown("""
         text-shadow: 0 0 5px rgba(0, 242, 255, 0.6);
     }
 
+    /* Mobile Optimization */
+    @media (max-width: 768px) {
+        .header-box { padding: 15px; }
+        .header-box h1 { font-size: 1.4rem; }
+        .stButton>button { 
+            font-size: 1.1rem !important; 
+            padding: 12px !important; 
+            height: auto !important;
+            min-height: 55px !important;
+        }
+        div[role="radiogroup"] label {
+            padding: 15px 5px;
+        }
+        div[role="radiogroup"] label p {
+            font-size: 1.1rem;
+        }
+        /* Adjust container spacing */
+        div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column;"] > div[data-testid="stStack"] {
+            padding: 15px;
+        }
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -186,6 +208,7 @@ with st.container(border=True):
     st.markdown("### 👮‍♂️ ข้อมูลเจ้าหน้าที่")
     
     commanders_list = [
+        {"label": "พ.ต.อ.ชัยชาญพัฒน์ ยติรัตนกัญญา (ผกก.)", "value": "พ.ต.อ.ชัยชาญพัฒน์ ยติรัตนกัญญา\nผกก.สภ.หนองหญ้าไซ"},
         {"label": "พ.ต.ท.สมชาย ธัญญเจริญ (รอง ผกก.ป.)", "value": "พ.ต.ท.สมชาย ธัญญเจริญ\nรอง ผกก.ป.สภ.หนองหญ้าไซ"},
         {"label": "พ.ต.ท.พุทธิชาติ บรรสุทธิ (รอง ผกก.สส.)", "value": "พ.ต.ท.พุทธิชาติ บรรสุทธิ\nรอง ผกก.สส.สภ.หนองหญ้าไซ"},
         {"label": "พ.ต.ท.พงษ์ศธร กิ่มเพ็ชร (รอง ผกก.สอบสวน)", "value": "พ.ต.ท.พงษ์ศธร กิ่มเพ็ชร\nรอง ผกก.(สอบสวน)"},
@@ -223,18 +246,25 @@ with st.container(border=True):
         leader = selected_leader_opt['value']
 
 # --- Specific Inputs ---
+# Time dropdown options (no keyboard popup)
+time_options = [
+    "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
+]
+
 if "ปล่อยแถว" in report_type:
     with st.container(border=True):
         st.markdown("### 🕒 เวลาและสถานที่ (ปล่อยแถว)")
         c1, c2 = st.columns(2)
         r_date = c1.date_input("วันที่", datetime.date.today())
-        r_time = c2.time_input("เวลา", datetime.time(19, 0))
+        
+        r_time_str = c2.selectbox("เวลา", time_options, index=0)  # Default 19:00
+        r_time = datetime.time(int(r_time_str.split(':')[0]), int(r_time_str.split(':')[1]))
         
         location_options = [
             "บริเวณ แยกหอนาฬิกา",
-            "ปั้ม ปตท.",
-            "แยกไทรแก้ว",
-            "หน้า ธกส"
+            "บริเวณ ปั้ม ปตท.",
+            "บริเวณ แยกไทรแก้ว",
+            "บริเวณ หน้า ธกส"
         ]
         
         selected_loc_opt = st.selectbox(
@@ -273,10 +303,13 @@ else:
         res_date = c_d1.date_input("วันที่", datetime.date.today())
         
         c_t1, c_t2 = st.columns(2)
-        start_time = c_t1.time_input("เวลาเริ่ม", datetime.time(19, 0))
-        end_time = c_t2.time_input("เวลาสิ้นสุด", datetime.time(19, 30))
+        start_time_str = c_t1.selectbox("เวลาเริ่ม", time_options, index=0)  # Default 19:00
+        end_time_str = c_t2.selectbox("เวลาสิ้นสุด", time_options, index=2)  # Default 20:00
         
-        team_count = st.number_input("กำลังรวม (นาย)", value=11)
+        start_time = datetime.time(int(start_time_str.split(':')[0]), int(start_time_str.split(':')[1]))
+        end_time = datetime.time(int(end_time_str.split(':')[0]), int(end_time_str.split(':')[1]))
+        
+        team_count = st.number_input("กำลังรวม (นาย)", value=5)
         
         st.write("---")
         st.markdown("**สถิติผลการปฏิบัติ**")
@@ -312,7 +345,7 @@ else:
         message_content = f"""สภ.หนองหญ้าไซ ภ.จว.สุพรรณบุรี
 {date_str} {time_range}
 {commander_txt.strip()}
- 👮🏻‍♀️{leader}
+👮🏻‍♀️{leader}
 พร้อมชุดปฏิบัติการ "ปะ ฉะ ดะ" 
 กำลังรวม {team_count} นาย 
 ออกปฏิบัติการในพื้นที่รับผิดชอบ 
@@ -344,3 +377,49 @@ with st.container(border=True):
 st.markdown("""
 <div class="footer-text">Developed for Police Station Usage</div>
 """, unsafe_allow_html=True)
+
+# --- Mobile Optimization Script ---
+# Inject JS to disable keyboard on Date/Time inputs (force picker only)
+import streamlit.components.v1 as components
+components.html("""
+<script>
+    function disableKeyboard() {
+        // Target all date and time inputs
+        const dateTimeInputs = window.parent.document.querySelectorAll(
+            'input[type="date"], input[type="time"]'
+        );
+        
+        dateTimeInputs.forEach(el => {
+            // Set readonly to prevent keyboard
+            el.setAttribute('readonly', 'readonly');
+            
+            // But allow the picker to open on click
+            el.addEventListener('click', function(e) {
+                this.removeAttribute('readonly');
+                // Re-add readonly after picker interaction
+                setTimeout(() => {
+                    this.setAttribute('readonly', 'readonly');
+                }, 100);
+            });
+            
+            // Additional attributes to prevent keyboard
+            el.setAttribute('inputmode', 'none');
+            el.setAttribute('autocomplete', 'off');
+        });
+    }
+
+    // Run on load and periodically to catch Streamlit re-renders
+    if (window.parent.document.readyState === 'loading') {
+        window.parent.document.addEventListener('DOMContentLoaded', disableKeyboard);
+    } else {
+        disableKeyboard();
+    }
+    
+    // Reapply on Streamlit updates
+    const observer = new MutationObserver(disableKeyboard);
+    observer.observe(window.parent.document.body, { 
+        childList: true, 
+        subtree: true 
+    });
+</script>
+""", height=0, width=0)
