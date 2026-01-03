@@ -24,6 +24,16 @@ st.markdown("""
             radial-gradient(circle at 90% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 20%);
         font-family: 'Sarabun', sans-serif;
     }
+
+    /* Hide Streamlit Header */
+    header[data-testid="stHeader"] {
+        display: none;
+    }
+    
+    /* Decrease top padding */
+    .block-container {
+        padding-top: 2rem !important;
+    }
     
     h1, h2, h3, h4, h5, h6 {
         color: #e0e0e0 !important;
