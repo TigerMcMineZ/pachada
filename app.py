@@ -26,33 +26,36 @@ st.markdown("""
     }
 
     /* Hide Streamlit Header, Main Menu, Footer, and specific buttons */
-    header[data-testid="stHeader"] {
-        display: none;
+    header {
+        visibility: hidden !important;
+        height: 0px !important;
     }
     
-    #MainMenu {
-        visibility: hidden;
-    }
-
-    footer {
-        visibility: hidden;
-    }
-
-    .stDeployButton {
-        display: none;
-    }
-
+    /* Hide Hamburger Menu and Deploy Button */
     [data-testid="stToolbar"] {
-        visibility: hidden;
+        display: none !important;
+        visibility: hidden !important;
     }
 
-    [data-testid="stStatusWidget"] {
-        visibility: hidden;
+    /* Hide Footer */
+    footer {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Specific class for Deploy Button if caught elsewhere */
+    .stDeployButton {
+        display: none !important;
     }
     
-    /* Decrease top padding */
+    /* Hide the decoration bar at the top */
+    [data-testid="stDecoration"] {
+        display: none !important;
+    }
+
+    /* Decrease top padding to pull content up */
     .block-container {
-        padding-top: 2rem !important;
+        padding-top: 1rem !important;
     }
     
     h1, h2, h3, h4, h5, h6 {
@@ -249,7 +252,6 @@ with st.container(border=True):
     selected_commanders = st.multiselect(
         "ผู้บังคับบัญชา (เลือก 1-2 ท่าน)",
         options=commanders_list,
-        default=[commanders_list[0], commanders_list[3]],
         format_func=lambda x: x['label']
     )
     
