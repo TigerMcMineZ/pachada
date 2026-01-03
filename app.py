@@ -25,9 +25,29 @@ st.markdown("""
         font-family: 'Sarabun', sans-serif;
     }
 
-    /* Hide Streamlit Header */
+    /* Hide Streamlit Header, Main Menu, Footer, and specific buttons */
     header[data-testid="stHeader"] {
         display: none;
+    }
+    
+    #MainMenu {
+        visibility: hidden;
+    }
+
+    footer {
+        visibility: hidden;
+    }
+
+    .stDeployButton {
+        display: none;
+    }
+
+    [data-testid="stToolbar"] {
+        visibility: hidden;
+    }
+
+    [data-testid="stStatusWidget"] {
+        visibility: hidden;
     }
     
     /* Decrease top padding */
